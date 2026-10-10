@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 0c01fba27f46a9bee4d3570c15bdbaf4135a1613
+          ref: 619bef12aabd006e26b087bd6bfc936b88a81d4e
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19'
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 0c01fba27f46a9bee4d3570c15bdbaf4135a1613
+          ref: 619bef12aabd006e26b087bd6bfc936b88a81d4e
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19'
