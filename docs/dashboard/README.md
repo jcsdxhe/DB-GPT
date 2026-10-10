@@ -11,8 +11,6 @@ Dashboard 将自然语言分析变成可校验、可编辑、可保存和可发�
 | 演示零售经营分析 | [Walmart：数据来源、制作与发布](demos/walmart.md) |
 | 演示历史财务分析 | [Apple：数据准备、筛选与发布](demos/apple.md) |
 | 安装依赖、运行检查、维护测试输入 | [开发指南](DEVELOPER_GUIDE.md) |
-| 查看已执行检查及其边界 | [验证说明](VALIDATION.md) |
-| 审查看板候选与工具链依赖 | [PR 范围与评阅顺序](PR_SCOPE.md) |
 | 理解部署身份、数据源授权与公开访问 | [安全说明](SECURITY.md)、[授权接入](AUTHORIZATION_INTEGRATION.md) |
 | 查字段及接口 | [基础 Schema](SCHEMA_V1.md)、[联邦扩展](SCHEMA_1_1_FEDERATION.md)、[API](API.md) |
 
@@ -26,4 +24,4 @@ Dashboard 将自然语言分析变成可校验、可编辑、可保存和可发�
 
 固定历史发布使用冻结的数据；持续分享按已发布定义更新数据。可复现的合成零售数据与历史真实 Walmart 案例有不同来源和数值，详见案例页。
 
-[已知限制](KNOWN_LIMITATIONS.md)记录当前边界。[历史资料说明](HISTORY.md)解释旧版本报告与个人结项材料的归档；这些材料不承担当前运行依赖。
+[已知限制](KNOWN_LIMITATIONS.md)记录产品边界。测试结果、提交版本和评审说明见 [PR #3278](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。

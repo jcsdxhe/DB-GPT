@@ -1,16 +1,6 @@
 # Dashboard 检查脚本
 
-当前安装、迁移与测试入口见 [开发指南](../../docs/dashboard/DEVELOPER_GUIDE.md)，已执行结果及跳过原因见 [验证说明](../../docs/dashboard/VALIDATION.md)。
-
-## 不依赖服务的材料检查
-
-在仓库根目录运行：
-
-```sh
-python scripts/dashboard/verify_pr_materials.py
-```
-
-检查维护文档中的本地链接、浏览器与上传样例的 manifest 和 SHA-256、上传样例关联计算，以及参考数据库的相对路径。该命令不启动服务、不下载数据，也不创建看板。
+当前安装、迁移与测试入口见 [开发指南](../../docs/dashboard/DEVELOPER_GUIDE.md)，已执行结果及跳过原因见 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。
 
 ## 生产浏览器回归
 

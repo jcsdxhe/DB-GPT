@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tempfile
 from typing import Type
 
 import pytest
@@ -125,7 +126,7 @@ def test_invalid_pagination(db: DatabaseManager, Model: Type[BaseModel]):
             session.query(User).paginate_query(page=1, per_page=-1)
 
 
-def test_set_model_db_manager(db: DatabaseManager, Model: Type[BaseModel], tmp_path):
+def test_set_model_db_manager(db: DatabaseManager, Model: Type[BaseModel]):
     assert db.metadata.tables == {}
 
     class User(Model):
@@ -133,11 +134,11 @@ def test_set_model_db_manager(db: DatabaseManager, Model: Type[BaseModel], tmp_p
         id = Column(Integer, primary_key=True)
         name = Column(String(50))
 
-    filename = (tmp_path / "metadata.db").as_posix()
-    new_db = DatabaseManager.build_from(
-        f"sqlite:///{filename}", base=Model, override_query_class=True
-    )
-    try:
+    with tempfile.NamedTemporaryFile(delete=True) as db_file:
+        filename = db_file.name
+        new_db = DatabaseManager.build_from(
+            f"sqlite:///{filename}", base=Model, override_query_class=True
+        )
         Model.set_db(new_db)
         new_db.create_all()
         db.create_all()
@@ -154,5 +155,3 @@ def test_set_model_db_manager(db: DatabaseManager, Model: Type[BaseModel], tmp_p
             session.query(User).filter(
                 User.name == "John Doe"
             ).first().name == "John Doe"
-    finally:
-        new_db.engine.dispose()

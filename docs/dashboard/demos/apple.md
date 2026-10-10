@@ -62,7 +62,7 @@ python examples/dashboard/build_demo_databases.py --output output/dashboard-demo
 
 ## 验收方法
 
-对默认、FY2022、FY2023、仅 iPhone 四组筛选逐一核对五组件的实时查询和冻结筛选结果。历史 2026-09-26 记录为 20/20 组比较一致及既有页面读取；不据此认定拆分候选重新完成全部编辑和发布步骤。当前检查及限制见 [验证说明](../VALIDATION.md)。
+对默认、FY2022、FY2023、仅 iPhone 四组筛选逐一核对五组件的实时查询和冻结筛选结果。历史 2026-09-26 记录为 20/20 组比较一致及既有页面读取；不据此认定拆分候选重新完成全部编辑和发布步骤。当前检查及限制见 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。
 
 
 ## 2026-09-27 补充验收
@@ -71,7 +71,7 @@ python examples/dashboard/build_demo_databases.py --output output/dashboard-demo
 
 ![人工复核后实际匿名分享页](../assets/apple-reviewed-20260927.png)
 
-截图来自 2026-09-27 的隔离实例；当前候选验证见 [验证说明](../VALIDATION.md)。
+截图来自 2026-09-27 的隔离实例；当前候选验证见 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。
 
 ## 拆分候选的确定性验收（2026-09-29）
 

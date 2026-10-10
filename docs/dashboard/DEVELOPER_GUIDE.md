@@ -1,15 +1,14 @@
 # Dashboard 开发指南
 
-阅读 [设计说明](DESIGN.md) 后，按 [PR 范围](PR_SCOPE.md) 检查后端、共享服务、前端与工程配置。当前实现与共享会话、文件和定时任务集成，不能只复制看板目录完成安装。
+阅读 [设计说明](DESIGN.md) 后，按代码入口检查后端、共享服务、前端与工程配置。当前实现与共享会话、文件和定时任务集成，不能只复制看板目录完成安装。
 
 ## 环境与入口
 
 前端按 `web/package.json` 使用 Node >=20.19.0、npm 10，锁文件为 package-lock.json。后端按仓库 [贡献指南](../../CONTRIBUTING.md) 建立环境，使用项目声明的 Python 依赖。Redis 协作依赖位于 `dbgpt-app[collaboration]` extra。
 
-在仓库根目录执行材料检查及后端测试：
+在仓库根目录执行后端测试：
 
 ```sh
-python scripts/dashboard/verify_pr_materials.py
 python -m pytest -c pytest.dashboard.ini -q
 ```
 
@@ -20,7 +19,7 @@ npm ci
 npm run verify:dashboard
 ```
 
-`verify:dashboard` 包含 构建契约、TypeScript、全站 lint、Vitest 和 production build。lint 与类型检查覆盖全站，已归因的基线警告仍会输出；各项验证范围见 [验证说明](VALIDATION.md)。
+`verify:dashboard` 包含 构建契约、TypeScript、全站 lint、Vitest 和 production build。lint 与类型检查覆盖全站，已归因的基线警告仍会输出；各项验证范围见 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。
 
 ## 全新环境安装与升级
 
@@ -75,7 +74,6 @@ npm run test:e2e:dashboard -- --list
 
 共享接口已纳入后端及组件测试；排除的全站首页浏览器套件留在完整集成档案。真实模型、外部数据库、Redis、Docker 及写入资产的测试需各自准备隔离环境；不得因一个分组通过而标注另一分组已验收。
 
-上传验收样例位于 [scripts/acceptance/fixtures/upload-samples](../../scripts/acceptance/fixtures/upload-samples/README.md)，由 optional_checks.cjs 读取。它们是运行输入；日志与截图是运行产物。部分既有浏览器脚本仍将新产物写入被 Git 忽略的 `docs/dashboard/evidence/`，这类写出路径不表示需要预先下载历史资料。
 
 ## 示例数据
 
@@ -113,4 +111,4 @@ python examples/dashboard/build_demo_databases.py --output output/dashboard-demo
 
 ## 记录结果
 
-记录代码 SHA 或“基于某 SHA 的未提交工作区”、命令、环境、通过/失败/跳过数及日志位置。只有实际执行过的流程才记为通过。旧版验收、固定输入回放、模型生成和生产部署分别记录，见 [验证说明](VALIDATION.md)和 [历史资料说明](HISTORY.md)。
+记录代码 SHA 或“基于某 SHA 的未提交工作区”、命令、环境、通过/失败/跳过数及日志位置。只有实际执行过的流程才记为通过。旧版验收、固定输入回放、模型生成和生产部署分别记录，见 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)和 [PR 验证记录](https://github.com/eosphoros-ai/DB-GPT/pull/3278)。

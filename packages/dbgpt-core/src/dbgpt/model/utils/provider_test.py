@@ -10,9 +10,6 @@ import os
 import re
 from typing import Optional, Tuple
 
-# This is a production connectivity helper, not a pytest module.
-__test__ = False
-
 logger = logging.getLogger(__name__)
 
 _ENV_PATTERN = re.compile(r"\$\{env:([A-Za-z0-9_]+)(?::-(.*?))?\}")

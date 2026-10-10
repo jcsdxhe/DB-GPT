@@ -3,7 +3,6 @@ from typing import cast
 
 import pytest
 
-from dbgpt.component import SystemApp
 from dbgpt.configs import VARIABLES_SCOPE_FLOW_PRIVATE
 from dbgpt.core.awel import BaseOperator, DAGVar, MapOperator
 from dbgpt.core.awel.flow import (
@@ -19,11 +18,6 @@ from dbgpt.core.awel.flow.flow_factory import (
     FlowFactory,
     FlowPanel,
     FlowVariables,
-)
-from dbgpt.core.interface.variables import (
-    StorageVariables,
-    StorageVariablesProvider,
-    VariablesIdentifier,
 )
 
 
@@ -223,25 +217,6 @@ def json_flow():
     }
 
 
-@pytest.fixture
-def variables_provider(request, monkeypatch):
-    system_app = SystemApp()
-    provider = StorageVariablesProvider(system_app=system_app)
-    for variable in request.param["vars"].values():
-        provider.save(
-            StorageVariables.from_identifier(
-                VariablesIdentifier.from_str_identifier(variable["key"]),
-                variable["value"],
-                variable["value_type"],
-                label="",
-                category=variable.get("category", "common"),
-            )
-        )
-    monkeypatch.setattr(DAGVar, "_system_app", system_app)
-    monkeypatch.setattr(DAGVar, "_variables_provider", provider)
-    return provider
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "variables_provider",
@@ -266,7 +241,16 @@ def variables_provider(request, monkeypatch):
     ],
     indirect=["variables_provider"],
 )
+@pytest.fixture
+def variables_provider():
+    from dbgpt_serve.flow.api.variables_provider import BuiltinFlowVariablesProvider
+
+    provider = BuiltinFlowVariablesProvider()
+    yield provider
+
+
 async def test_build_flow(json_flow, variables_provider):
+    DAGVar.set_variables_provider(variables_provider)
     flow_data = FlowData(**json_flow)
     variables = [
         FlowVariables(

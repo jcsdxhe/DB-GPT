@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import tempfile
 import time
 from datetime import datetime, timedelta
 from unittest.mock import patch
@@ -17,16 +18,22 @@ from dbgpt.util.tracer import (
 
 
 @pytest.fixture
-def storage(request, tmp_path):
+def storage(request):
     if not request or not hasattr(request, "param"):
         file_does_not_exist = False
     else:
         file_does_not_exist = request.param.get("file_does_not_exist", False)
 
-    filename = tmp_path / "spans.jsonl"
-    if not file_does_not_exist:
-        filename.touch()
-    yield FileSpanStorage(str(filename))
+    if file_does_not_exist:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            filename = os.path.join(tmp_dir, "non_existent_file.jsonl")
+            storage_instance = FileSpanStorage(filename)
+            yield storage_instance
+    else:
+        with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+            filename = tmp_file.name
+            storage_instance = FileSpanStorage(filename)
+            yield storage_instance
 
 
 @pytest.fixture

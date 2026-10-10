@@ -33,9 +33,6 @@ Apple financial facts come from the repository's
 To update an input, explain the behavior being exercised, inspect its values and
 remove credentials or personal metadata, then update the manifest hash and run the
 affected specs. Do not regenerate all fixtures solely to make assertions pass.
-Run `python scripts/dashboard/verify_pr_materials.py` from the repository root to
-check hashes, data relationships and maintained documentation links.
-
 From `web`, `npm run test:e2e:dashboard -- --list` verifies test collection without
 starting a server. Actual browser execution needs the environment described in the
 [developer guide](../../../../docs/dashboard/DEVELOPER_GUIDE.md).
