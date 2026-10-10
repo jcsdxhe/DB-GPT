@@ -61,7 +61,6 @@ function formatMarkdownVal(val: string) {
   return val.replace(/<table(\w*=[^>]+)>/gi, '<table $1>').replace(/<tr(\w*=[^>]+)>/gi, '<tr $1>');
 }
 
-/** Render chat Markdown and structured plugin output using the shared content renderers. */
 function ChatContent({ children, content, isChartChat, onLinkClick }: PropsWithChildren<Props>) {
   const { scene } = useContext(ChatContext);
 
@@ -112,7 +111,6 @@ function ChatContent({ children, content, isChartChat, onLinkClick }: PropsWithC
 
   const extraMarkdownComponents = useMemo<MarkdownComponent>(
     () => ({
-      /** Resolve a cached plugin-result placeholder into its status/result card, preserving unknown placeholders as text. */
       'custom-view'({ children }) {
         const index = children == null ? -1 : Number(children.toString());
         if (!cachePluginContext[index]) {

@@ -15,7 +15,6 @@ import {
   uploadDataSetsContent,
   uploadDataSetsFile,
 } from '@/client/api';
-import { readDownloadError } from '@/lib/download-error';
 import { InfoCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
@@ -76,7 +75,6 @@ interface EvaluationItemType {
   gmt_create: string;
   gmt_modified: string;
 }
-/** Manage evaluation datasets and runs, including launching evaluations and downloading their results. */
 const Evaluation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDataSetModalOpen, setIsDataSetModalOpen] = useState(false);
@@ -280,7 +278,6 @@ const Evaluation = () => {
     {
       title: 'Action',
       key: 'action',
-      /** Render the row actions for inspecting, deleting or downloading the associated evaluation data. */
       render: (_, record) => (
         <Space size='middle'>
           <Popconfirm
@@ -321,9 +318,20 @@ const Evaluation = () => {
               const response = await downloadDataSet({
                 code: record?.code,
               });
-              const downloadError = await readDownloadError(response.data);
-              if (downloadError) {
-                message.error(downloadError);
+              const contentType = response.headers['content-type'];
+              if (typeof contentType === 'string' && contentType.includes('application/json')) {
+                // 如果是 JSON，解析错误信息
+                const reader = new FileReader();
+                reader.onload = () => {
+                  try {
+                    const error = JSON.parse(reader.result as string);
+                    message.error(error.err_msg);
+                    // 在页面或通知系统中展示错误信息
+                  } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError);
+                  }
+                };
+                reader.readAsText(response.data as any);
               } else {
                 // 从响应头中获取文件名
                 const contentDisposition = response.headers['content-disposition'];
@@ -433,7 +441,6 @@ const Evaluation = () => {
     {
       title: '测评结果',
       key: 'result',
-      /** Render the row actions for inspecting, deleting or downloading the associated evaluation data. */
       render: (_, record) => (
         <>
           <Button
@@ -455,9 +462,21 @@ const Evaluation = () => {
               const response = await downloadEvaluation({
                 evaluate_code: record?.evaluate_code,
               });
-              const downloadError = await readDownloadError(response.data);
-              if (downloadError) {
-                message.error(downloadError);
+              const contentType = response.headers['content-type'];
+
+              if (typeof contentType === 'string' && contentType.includes('application/json')) {
+                // 如果是 JSON，解析错误信息
+                const reader = new FileReader();
+                reader.onload = () => {
+                  try {
+                    const error = JSON.parse(reader.result as string);
+                    message.error(error.err_msg);
+                    // 在页面或通知系统中展示错误信息
+                  } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError);
+                  }
+                };
+                reader.readAsText(response.data as any);
               } else {
                 // 从响应头中获取文件名
                 const contentDisposition = response.headers['content-disposition'];

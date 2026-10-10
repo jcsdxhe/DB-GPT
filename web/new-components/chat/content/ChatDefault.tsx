@@ -11,7 +11,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
-/** Display the initial chat screen with recommended applications and starter content. */
 function ChatDefault() {
   const { setCurrentDialogInfo, model } = useContext(ChatContext);
 
@@ -59,7 +58,6 @@ function ChatDefault() {
     },
     {
       manual: true,
-      /** Normalize recommended-app arrays and paginated responses into the initial chat view state. */
       onSuccess: res => {
         const [_error, data] = res;
         if (Array.isArray(data)) {

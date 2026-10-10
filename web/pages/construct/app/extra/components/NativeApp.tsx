@@ -27,7 +27,6 @@ interface FormProps {
   prompt_template?: string;
 }
 
-/** Edit the configuration of a native application using its existing model and resource settings. */
 const NativeApp: React.FC<{
   updateData: (data: [boolean, [TeamContext, ParamNeed[]]]) => void;
   classNames?: string;

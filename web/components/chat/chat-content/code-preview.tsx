@@ -15,7 +15,6 @@ interface Props {
   dark?: { [key: string]: CSSProperties };
 }
 
-/** Render syntax-highlighted source with the code-preview copy controls. */
 export function CodePreview({ code, light, dark, language, customStyle, codeStyle }: Props) {
   const { message } = App.useApp();
   const { mode } = useContext(ChatContext);

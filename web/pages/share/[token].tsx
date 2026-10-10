@@ -18,7 +18,7 @@ import ManusRightPanel, {
   PanelView,
 } from '@/new-components/chat/content/ManusRightPanel';
 import { buildActionDisplayText } from '@/utils/action-display';
-import { cleanFinalContent, decodeHistoryAnswer, type AgentCitation } from '@/utils/react-agent-final';
+import { decodeHistoryAnswer, type AgentCitation } from '@/utils/react-agent-final';
 import {
   LinkOutlined,
   PauseCircleOutlined,
@@ -248,14 +248,13 @@ function buildReplayRounds(rawMessages: Array<{ role: string; context: string; o
       });
 
       const finalAnswer = decodeHistoryAnswer(payload);
-      const finalContent = cleanFinalContent(finalAnswer.content);
-      const artifacts = buildArtifacts(`round-${rounds.length}`, steps, outputs, finalContent);
+      const artifacts = buildArtifacts(`round-${rounds.length}`, steps, outputs, finalAnswer.content);
       rounds.push({
         humanText: pendingHuman || '',
         steps,
         outputs,
         stepThoughts,
-        finalContent,
+        finalContent: finalAnswer.content,
         citations: finalAnswer.citations,
         artifacts,
         attachedFiles: displayOnlySnapshots(payload.input_files),

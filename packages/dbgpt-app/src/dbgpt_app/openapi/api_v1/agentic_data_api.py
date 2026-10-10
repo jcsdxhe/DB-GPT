@@ -1044,7 +1044,6 @@ def _build_react_history_payload(
     sub_agents: Any,
     input_files: List[Dict[str, Any]],
     citations: Optional[List[Dict[str, Any]]] = None,
-    failed: bool = False,
 ) -> str:
     """Serialize the persisted react-agent history payload (version 2).
 
@@ -1060,7 +1059,6 @@ def _build_react_history_payload(
             "protocol_version": 2,
             "type": "react-agent",
             "final_content": final_content,
-            "status": "failed" if failed else "completed",
             "citations": citations or [],
             "steps": steps,
             "task_plan": task_plan,
@@ -1091,8 +1089,6 @@ def _react_terminal_events(
     storage_conv: Any,
     history_payload: str,
     final_answer: AgentFinalAnswer,
-    *,
-    failed: bool = False,
 ) -> Tuple[str, str]:
     """Persist one ReAct round without risking its terminal SSE events."""
     try:
@@ -1103,12 +1099,7 @@ def _react_terminal_events(
         logger.exception("Failed to persist ReAct agent history")
 
     return (
-        _sse_event(
-            {
-                **final_answer.to_sse_payload(),
-                "status": "failed" if failed else "completed",
-            }
-        ),
+        _sse_event(final_answer.to_sse_payload()),
         _sse_event({"type": "done"}),
     )
 
@@ -1144,23 +1135,19 @@ async def _react_agent_stream(
         attachment_ctx: Pre-resolved attachment context for this turn (or
             ``None`` for pure-text / legacy ``file_path`` requests).
     """
-    inner = _react_agent_stream_inner(dialogue, tool_mode, attachment_ctx)
     try:
-        async for event in inner:
+        async for event in _react_agent_stream_inner(
+            dialogue, tool_mode, attachment_ctx
+        ):
             yield event
     finally:
-        # Closing the outer generator must finish the agent before releasing
-        # attachment files that it may still be using.
-        try:
-            await inner.aclose()
-        finally:
-            if attachment_ctx is not None:
-                try:
-                    attachment_ctx.close()
-                except Exception:
-                    logger.warning(
-                        "Failed to close session attachment context", exc_info=True
-                    )
+        if attachment_ctx is not None:
+            try:
+                attachment_ctx.close()
+            except Exception:
+                logger.warning(
+                    "Failed to close session attachment context", exc_info=True
+                )
 
 
 def _legacy_upload_base_dir() -> str:
@@ -1245,12 +1232,9 @@ async def _react_agent_stream_inner(
         logger.exception("ReAct agent stream failed before normal completion")
         if not final_emitted and not done_emitted:
             yield _sse_event(
-                {
-                    **AgentFinalAnswer(
-                        content="抱歉，回答生成过程中发生错误，请重试。"
-                    ).to_sse_payload(),
-                    "status": "failed",
-                }
+                AgentFinalAnswer(
+                    content="抱歉，回答生成过程中发生错误，请重试。"
+                ).to_sse_payload()
             )
         if not done_emitted:
             yield _sse_event({"type": "done"})
@@ -1269,10 +1253,7 @@ class _AgentStreamingResponse(StreamingResponse):
             close = getattr(self.body_iterator, "aclose", None)
             if callable(close):
                 try:
-                    import anyio
-
-                    with anyio.CancelScope(shield=True):
-                        await close()
+                    await close()
                 except asyncio.CancelledError:
                     raise
                 except Exception:
@@ -2165,7 +2146,6 @@ print(json.dumps(summary, ensure_ascii=False))
     execute_tool_tool = make_execute_tool(react_state)
     # Knowledge tools: use kb_tools (kb_ls, kb_glob, kb_grep, kb_cat, semantic_search)
     # when a knowledge space is connected, otherwise fall back to knowledge_retrieve
-    wiki_available = False
     if knowledge_space:
         kb_tool_list = make_kb_tools(knowledge_space)
         # Filter out codegraph tools when the space has no built code graph,
@@ -3575,7 +3555,6 @@ Thought/Action/Action Input format shown above.
         fail_running_subagent_history(subagent_history)
         error_payload = _build_react_history_payload(
             final_content=err_msg,
-            failed=True,
             steps=history_steps,
             task_plan=list(_todo_list),
             generated_images=react_state.get("generated_images", []),
@@ -3587,15 +3566,10 @@ Thought/Action/Action Input format shown above.
             storage_conv,
             error_payload,
             AgentFinalAnswer(content=err_msg),
-            failed=True,
         ):
             yield terminal_event
         return
 
-    # A model failure or a loop ending without terminate is not completion.
-    failed = not reply.success or bool(
-        reply.action_report and not reply.action_report.terminate
-    )
     if reply.action_report and reply.action_report.terminate:
         raw_content = reply.action_report.content or ""
         # The terminate ActionOutput.content may be the raw ReAct text, e.g.:
@@ -3669,7 +3643,6 @@ Thought/Action/Action Input format shown above.
     # Persist AI reply with structured history payload
     history_payload = _build_react_history_payload(
         final_content=final_answer.content,
-        failed=failed,
         steps=history_steps,
         task_plan=list(_todo_list),
         generated_images=react_state.get("generated_images", []),
@@ -3681,7 +3654,6 @@ Thought/Action/Action Input format shown above.
         storage_conv,
         history_payload,
         final_answer,
-        failed=failed,
     ):
         yield terminal_event
 

@@ -16,7 +16,6 @@ interface EditScheduledTaskDrawerProps {
   onSaved: () => void;
 }
 
-/** Edit a scheduled task's details and timing in a drawer backed by the existing task API. */
 const EditScheduledTaskDrawer: React.FC<EditScheduledTaskDrawerProps> = ({ open, onClose, task, onSaved }) => {
   const { message } = App.useApp();
   const { t } = useTranslation();

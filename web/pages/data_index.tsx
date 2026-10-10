@@ -16,7 +16,6 @@ import IconFont from '@/new-components/common/Icon';
 import BlurredCard from '@/new-components/common/blurredCard';
 import moment from 'moment';
 
-/** Browse recommended and saved applications using the data-index page filters. */
 const Playground: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
@@ -89,7 +88,6 @@ const Playground: NextPage = () => {
     },
     {
       manual: true,
-      /** Normalize recommendation arrays or merge paginated application results into the current list. */
       onSuccess: res => {
         const [_error, data] = res;
         if (!data) return;

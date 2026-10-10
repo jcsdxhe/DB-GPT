@@ -24,7 +24,6 @@ const SvgPreview = ({ code, language = 'svg' }: { code: string; language?: strin
   const { t } = useTranslation();
 
   // Clean up SVG code (remove XML declaration, etc.)
-  /** Normalize SVG wrappers, namespace and sizing metadata for preview; this is not an HTML sanitizer. */
   const cleanSvgCode = (svgCode: string) => {
     // Remove XML declaration
     let cleaned = svgCode.replace(/<\?xml[^>]*\?>/g, '');
@@ -121,7 +120,6 @@ const SvgPreview = ({ code, language = 'svg' }: { code: string; language?: strin
   };
 
   // Download PNG file
-  /** Rasterize the current SVG on a canvas and download it, releasing the temporary object URL. */
   const downloadPNG = () => {
     // Create a canvas
     const canvas = document.createElement('canvas');
@@ -163,7 +161,6 @@ const SvgPreview = ({ code, language = 'svg' }: { code: string; language?: strin
   };
 
   // Control zoom
-  /** Apply the preview zoom percentage selected by the slider. */
   const handleZoomChange = (value: number) => {
     setZoom(value);
   };

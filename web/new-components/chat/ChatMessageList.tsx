@@ -35,7 +35,6 @@ interface ChatMessageListProps {
   emptyState?: React.ReactNode;
 }
 
-/** Render conversation messages with their streaming and agent-execution state. */
 const ChatMessageList: React.FC<ChatMessageListProps> = ({
   turns,
   isLoading: _isLoading = false,

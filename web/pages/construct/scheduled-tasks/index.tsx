@@ -25,7 +25,6 @@ function fmtTime(iso?: string | null): string | null {
 
 type StatusFilter = 'all' | 'enabled' | 'disabled';
 
-/** List scheduled tasks with search, enable/edit controls and access to execution history. */
 function ScheduledTasks() {
   const { message } = App.useApp();
   const router = useRouter();

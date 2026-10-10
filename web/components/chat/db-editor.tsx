@@ -29,7 +29,6 @@ type ITableData = {
 };
 
 interface EditorValueProps {
-  editorText?: string;
   sql?: string;
   thoughts?: string;
   title?: string;
@@ -44,7 +43,7 @@ interface RoundProps {
 
 interface IProps {
   editorValue?: EditorValueProps;
-  liveEditorText?: string;
+  liveSql?: string;
   chartData?: any;
   tableData?: ITableData;
   layout?: 'TB' | 'LR';
@@ -62,16 +61,7 @@ interface ITableTreeItem {
   children: Array<ITableTreeItem>;
 }
 
-/** Display editable SQL beside query results/charts, preserving live edits and supplying schema completion. */
-function DbEditorContent({
-  layout = 'LR',
-  editorValue,
-  liveEditorText,
-  chartData,
-  tableData,
-  tables,
-  handleChange,
-}: IProps) {
+function DbEditorContent({ layout = 'LR', editorValue, liveSql, chartData, tableData, tables, handleChange }: IProps) {
   const chartWrapper = useMemo(() => {
     if (!chartData) return null;
     return (
@@ -139,8 +129,7 @@ function DbEditorContent({
     >
       <div className='flex-1 flex overflow-hidden rounded'>
         <MonacoEditor
-          value={liveEditorText ?? editorValue?.sql ?? ''}
-          formatValue={liveEditorText === undefined}
+          value={liveSql ?? editorValue?.sql ?? ''}
           language='mysql'
           onChange={handleChange}
           thoughts={editorValue?.thoughts || ''}
@@ -167,7 +156,6 @@ function DbEditorContent({
   );
 }
 
-/** Manage SQL conversation rounds, schema navigation, query execution and saving the edited result. */
 function DbEditor() {
   const { t } = useTranslation();
   const [expandedKeys, setExpandedKeys] = useState<Key[]>([]);
@@ -471,7 +459,6 @@ function DbEditor() {
 
   const dataList = useMemo(() => {
     const res: { key: Key; title: string; parentKey?: Key }[] = [];
-    /** Flatten schema-tree entries with parent keys so search results can expand their ancestors. */
     const generateList = (data: DataNode[], parentKey?: Key) => {
       if (!data || data?.length <= 0) return;
       for (let i = 0; i < data.length; i++) {
@@ -708,13 +695,12 @@ function DbEditor() {
                     <DbEditorContent
                       layout={layout}
                       editorValue={item}
-                      liveEditorText={index === currentTabIndex ? newEditorValue?.editorText : undefined}
+                      liveSql={index === currentTabIndex ? (newEditorValue?.sql ?? item.sql) : item.sql}
                       handleChange={value => {
                         const { sql, thoughts } = resolveSqlAndThoughts(value);
                         latestSqlRef.current = sql ?? '';
                         setNewEditorValue(old => {
                           return Object.assign({}, old, {
-                            editorText: value ?? '',
                             sql,
                             thoughts,
                           });
@@ -731,13 +717,12 @@ function DbEditor() {
             <DbEditorContent
               layout={layout}
               editorValue={editorValue}
-              liveEditorText={newEditorValue?.editorText}
+              liveSql={newEditorValue?.sql}
               handleChange={value => {
                 const { sql, thoughts } = resolveSqlAndThoughts(value);
                 latestSqlRef.current = sql ?? '';
                 setNewEditorValue(old => {
                   return Object.assign({}, old, {
-                    editorText: value ?? '',
                     sql,
                     thoughts,
                   });

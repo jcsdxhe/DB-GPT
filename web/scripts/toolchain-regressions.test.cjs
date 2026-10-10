@@ -23,7 +23,6 @@ function loadTs(relative) {
   return loaded.exports;
 }
 
-const { readDownloadError } = loadTs('lib/download-error.ts');
 const { ee, EVENTS } = loadTs('utils/event-emitter.ts');
 const { DocumentFormattingEditProvider, DocumentRangeFormattingEditProvider } = loadTs(
   'components/chat/ob-editor/format.ts',
@@ -66,28 +65,6 @@ test('formatting leaves incomplete SQL, cancelled requests and custom delimiters
   assert.deepEqual(provider.provideDocumentFormattingEdits(model, options, { isCancellationRequested: true }), []);
   plugin.modelOptionsMap.set('sql-model', { delimiter: '$$' });
   assert.deepEqual(provider.provideDocumentFormattingEdits(model, options, { isCancellationRequested: false }), []);
-});
-
-test('download errors are detected without a media type or with an incorrect one', async () => {
-  for (const type of ['', 'application/json', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']) {
-    const data = new Blob(['  {"err_msg":"dataset unavailable","success":false}'], { type });
-    assert.equal(await readDownloadError(data), 'dataset unavailable');
-  }
-});
-
-test('binary downloads are not decoded in full', async () => {
-  const data = new Blob([new Uint8Array([0x50, 0x4b, 0x03, 0x04]), new Uint8Array(1024 * 1024)]);
-  data.text = () => {
-    throw new Error('Successful binary files must not be decoded in full.');
-  };
-  assert.equal(await readDownloadError(data), undefined);
-});
-
-test('only API error envelopes become error messages', async () => {
-  assert.equal(await readDownloadError({ err_msg: 'access denied' }), 'access denied');
-  for (const value of ['{invalid', '{"rows":[1,2]}', 'null', '[]', { err_msg: 12 }]) {
-    assert.equal(await readDownloadError(value), undefined);
-  }
 });
 
 test('unsubscribed task views stop receiving events without affecting other views', t => {

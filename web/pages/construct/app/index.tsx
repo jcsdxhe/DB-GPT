@@ -25,7 +25,6 @@ import CreateAppModal from './components/create-app-modal';
 type TabKey = 'all' | 'published' | 'unpublished';
 type ModalType = 'edit' | 'add';
 
-/** List and manage applications, including their filters, configuration and administrators. */
 export default function AppContent() {
   const { t } = useTranslation();
   const [open, setOpen] = useState<boolean>(false);
@@ -236,7 +235,6 @@ export default function AppContent() {
     },
   );
 
-  /** Persist the selected administrators for the current application and refresh its listing. */
   const handleChange = async (value: string[]) => {
     setAdmins(value);
     await updateAdmins({

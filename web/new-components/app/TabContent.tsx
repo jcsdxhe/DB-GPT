@@ -9,7 +9,6 @@ import { useRouter } from 'next/router';
 import React, { useContext } from 'react';
 import IconFont from '../common/Icon';
 
-/** Render application cards for the selected application category and expose their available actions. */
 const TabContent: React.FC<{ apps: IApp[]; loading: boolean; refresh: () => void; type: 'used' | 'recommend' }> = ({
   apps,
   refresh,

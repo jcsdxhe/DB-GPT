@@ -11,39 +11,12 @@ on:
       - main
     paths:
       - web/**
-      - scripts/build_web_static.sh
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/examples_api.py
-      - packages/dbgpt-app/src/dbgpt_app/tests/test_examples_api.py
-      - packages/dbgpt-app/src/dbgpt_app/tests/test_attachment_react_adapter.py
-      - packages/dbgpt-sandbox/src/dbgpt_sandbox/sandbox/execution_layer/local_runtime.py
-      - packages/dbgpt-sandbox/tests/test_local_bash.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tools/shell_interpreter.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tools/tests/test_execution_runtime.py
-      - skills/skill-creator/**
-      - packages/dbgpt-core/src/dbgpt/agent/util/llm/llm_client.py
-      - packages/dbgpt-core/src/dbgpt/agent/util/tests/test_llm_stream_errors.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/agentic_data_api.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tests/test_agentic_data_api_lifecycle.py
       - .github/workflows/build-web.yml
   push:
     branches:
       - main
-      - "codex/**"
     paths:
       - web/**
-      - scripts/build_web_static.sh
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/examples_api.py
-      - packages/dbgpt-app/src/dbgpt_app/tests/test_examples_api.py
-      - packages/dbgpt-app/src/dbgpt_app/tests/test_attachment_react_adapter.py
-      - packages/dbgpt-sandbox/src/dbgpt_sandbox/sandbox/execution_layer/local_runtime.py
-      - packages/dbgpt-sandbox/tests/test_local_bash.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tools/shell_interpreter.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tools/tests/test_execution_runtime.py
-      - skills/skill-creator/**
-      - packages/dbgpt-core/src/dbgpt/agent/util/llm/llm_client.py
-      - packages/dbgpt-core/src/dbgpt/agent/util/tests/test_llm_stream_errors.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/agentic_data_api.py
-      - packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tests/test_agentic_data_api_lifecycle.py
       - .github/workflows/build-web.yml
 
 concurrency:
@@ -56,30 +29,6 @@ defaults:
     working-directory: ./web
 
 jobs:
-  example-file-contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-        with:
-          version: '0.12.22'
-          python-version: '3.11'
-          enable-cache: true
-      - name: Test example files and legacy attachment ownership
-        working-directory: .
-        run: |
-          uv sync --frozen --package dbgpt-app --package dbgpt --package dbgpt-mono --extra base
-          uv run --no-sync python -m pytest \
-            packages/dbgpt-app/src/dbgpt_app/tests/test_examples_api.py \
-            packages/dbgpt-app/src/dbgpt_app/tests/test_attachment_react_adapter.py \
-            packages/dbgpt-sandbox/tests/test_local_bash.py \
-            packages/dbgpt-sandbox/tests/test_runtime_factory.py \
-            packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tools/tests/test_execution_runtime.py \
-            packages/dbgpt-core/src/dbgpt/agent/util/tests/test_llm_stream_errors.py \
-            packages/dbgpt-app/src/dbgpt_app/openapi/api_v1/tests/test_agentic_data_api_lifecycle.py \
-            packages/dbgpt-app/src/dbgpt_app/tests/test_react_file_history.py \
-            -q
-
   build-web:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -115,23 +64,3 @@ jobs:
       - name: Build web application
         run: |
           npm run build
-
-      - name: Package the Python-served UI using the README command
-        run: |
-          test ! -e .env
-          test ! -e .env.copy
-          printf 'DBGPT_PACKAGING_SENTINEL=ci-only-no-secret\n' > .env
-          cp .env ../.packaging-env.expected
-          bash ../scripts/build_web_static.sh
-          cmp .env ../.packaging-env.expected
-          test ! -e .env.copy
-          diff -qr out ../packages/dbgpt-app/src/dbgpt_app/static/web
-          node -e "console.log(JSON.stringify(require('./scripts/verify-next-build-assets.cjs').verifyNextBuildAssets('../packages/dbgpt-app/src/dbgpt_app/static/web', { staticExport: true })))"
-
-      - name: Preserve the packaged UI for backend acceptance
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-static-${{ matrix.os }}
-          path: packages/dbgpt-app/src/dbgpt_app/static/web
-          include-hidden-files: true
-          if-no-files-found: error

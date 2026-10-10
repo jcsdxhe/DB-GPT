@@ -76,7 +76,6 @@ const ChatContext = createContext<IChatContext>({
   refreshDialogList: () => {},
 });
 
-/** Provide shared conversation, model and application state to the chat interface. */
 const ChatContextProvider = ({ children }: { children: React.ReactElement }) => {
   const searchParams = useSearchParams();
   const chatId = searchParams?.get('id') ?? '';

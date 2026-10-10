@@ -78,7 +78,6 @@ const NodeParamHandler: React.FC<NodeParamHandlerProps> = ({ formValuesChange, n
           <Form.Item
             className='mb-2 text-sm'
             name={data.name}
-            valuePropName='checked'
             initialValue={defaultValue}
             rules={[{ required: !data.optional }]}
             label={<span className='text-neutral-500'>{data.label}</span>}

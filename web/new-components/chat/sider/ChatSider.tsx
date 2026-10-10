@@ -145,7 +145,6 @@ const MenuItem: React.FC<{
   );
 };
 
-/** Display conversation navigation and management actions in the chat sidebar. */
 const ChatSider: React.FC<{
   dialogueList: any;
   refresh: () => void;

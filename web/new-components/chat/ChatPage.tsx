@@ -39,7 +39,6 @@ export interface ChatPageProps {
   className?: string;
 }
 
-/** Compose the chat page layout around the selected conversation and its input controls. */
 const ChatPage: React.FC<ChatPageProps> = ({
   turns,
   isLoading = false,
