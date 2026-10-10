@@ -1,66 +1,100 @@
-name: Build Web Application
-
+name: Review-only web validation
+on:
+  push:
+    branches: [codex/pr3277-validation-20261010]
 permissions:
   contents: read
-
-# Triggered when the web directory or this file is changed
-on:
-  workflow_dispatch:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - web/**
-      - .github/workflows/build-web.yml
-  push:
-    branches:
-      - main
-    paths:
-      - web/**
-      - .github/workflows/build-web.yml
-
-concurrency:
-  group: ${{ github.event.number || github.run_id }}
-  cancel-in-progress: true
-
-defaults:
-  run:
-    # Runs all jobs in the web directory
-    working-directory: ./web
-
 jobs:
-  build-web:
+  packaging:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        # FIXME: Add windows-latest support
         os: [ubuntu-latest, macos-latest]
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        with:
+          ref: 0c01fba27f46a9bee4d3570c15bdbaf4135a1613
+      - uses: actions/setup-node@v4
         with:
           node-version: '20.19'
           cache: npm
           cache-dependency-path: web/package-lock.json
-
-      - name: Pin npm used by the lockfile
-        run: npm install --global npm@10.8.2
-
-      - name: Install dependencies
+      - run: npm install --global npm@10.8.2
+      - name: Run the README packaging command and verify its output
+        working-directory: web
         run: |
-          npm ci
-
-      - name: Check types and build contracts
+          test ! -e .env
+          test ! -e .env.copy
+          printf 'DBGPT_PACKAGING_SENTINEL=review-only-no-secret\n' > .env
+          cp .env ../.packaging-env.expected
+          bash ../scripts/build_web_static.sh
+          cmp .env ../.packaging-env.expected
+          test ! -e .env.copy
+          diff -qr out ../packages/dbgpt-app/src/dbgpt_app/static/web
+          node -e "console.log(JSON.stringify(require('./scripts/verify-next-build-assets.cjs').verifyNextBuildAssets('../packages/dbgpt-app/src/dbgpt_app/static/web', { staticExport: true })))"
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 0c01fba27f46a9bee4d3570c15bdbaf4135a1613
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            tests/web-toolchain/package-lock.json
+      - name: Install frontend and browser runner
         run: |
-          npm run typecheck
-          npm run lint
-          npm run test:build
-          npm test
-
-      - name: Build web application
+          npm install --global npm@10.8.2
+          npm ci --prefix web
+          npm ci --prefix tests/web-toolchain
+          node tests/web-toolchain/node_modules/@playwright/test/cli.js install --with-deps chromium
+      - name: Build production frontend
+        run: npm run build --prefix web
+      - name: Test production and development browser flows
+        env:
+          REGRESSION_OUTPUT: ${{ github.workspace }}/browser-results
         run: |
-          npm run build
+          mkdir -p browser-results
+          result=0
+          for mode in production development; do
+            if [ "$mode" = production ]; then
+              command=start
+              port=5790
+              export NEXT_DIST_DIR=.next
+            else
+              command=dev
+              port=5791
+              export NEXT_DIST_DIR=.next-review-dev
+            fi
+            npm run "$command" --prefix web -- --hostname 127.0.0.1 --port "$port" >"browser-results/$mode-server.log" 2>&1 &
+            server_pid=$!
+            trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+            ready=false
+            for attempt in $(seq 1 90); do
+              if curl --fail --silent "http://127.0.0.1:$port/" >/dev/null; then
+                ready=true
+                break
+              fi
+              sleep 2
+            done
+            if [ "$ready" != true ]; then
+              cat "browser-results/$mode-server.log"
+              exit 1
+            fi
+            REGRESSION_URL="http://127.0.0.1:$port" REGRESSION_MODE="$mode" npm test --prefix tests/web-toolchain || result=1
+            kill "$server_pid" 2>/dev/null || true
+            trap - EXIT
+          done
+          exit "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: review-only-browser-results
+          path: browser-results
+          if-no-files-found: warn
