@@ -1,19 +1,18 @@
 # Dashboard feature walkthrough for PR #3278
 
-These images were captured from the frontend at [8de03431](https://github.com/jcsdxhe/DB-GPT/commit/8de034311e4e57feca99a9c9bfc03dfcb85bcec6).
+Captured from the frontend at `8de034311e4e57feca99a9c9bfc03dfcb85bcec6`. This branch hosts PR illustrations only.
 
-- The source is the repository's fixed Apple financial demo snapshot (FY2022–FY2024).
-- The four-widget layout, English dashboard titles, field labels and literal million-unit suffixes are presentation settings in the demo schema.
-- Remaining interface labels are translated in the capture browser for this English walkthrough. The images do not claim that full application localization has shipped.
-- API and AI responses use deterministic fixtures. These are workflow illustrations, not a fresh live model or backend validation run.
-- Application code and Chinese business-case documentation are unchanged. This branch only hosts PR illustrations.
+- Finance images use the repository's fixed Apple financial sample.
+- Store Marketing Studio and Voice Intelligence Lab use the project's fixed-seed synthetic example data, obtained through the existing catalog preview API.
+- English text, number units and the selected demo layout are presentation settings. Remaining interface text is translated in the capture browser; this does not claim full application localization.
+- Marketing shows a six-widget excerpt with evenly sized chart columns. Voice uses its native eight-widget dark layout.
+- API responses are replayed for reproducible screenshots; AI proposals are fixtures. The images illustrate the UI, not a new live-model or production-backend test run.
+- Card boundaries, spacing and visible chart labels were reviewed. No application code or Chinese business documentation was changed.
 
 ## Images
 
-1. `01-workspace.png`: visual editor, four aligned KPI/chart widgets and global filters.
-2. `02-ai-review.png`: annotations, proposed changes and explicit batch confirmation.
-3. `03-publish.png`: fixed snapshots and data-source-following links.
-
-All financial amounts are in USD millions. Public source references remain in the repository's Apple example.
-
-The final captures respect the renderer's seven-row chart minimum. Card bounds were checked for overlap and viewport clipping, and all three images were visually reviewed.
+1. `01-workspace.png`: financial editor and global filters.
+2. `04-marketing.png`: warm marketing workspace, campaign KPIs, trend and channels.
+3. `05-voice.png`: dark voice lab, latency, quality gauge and interaction mix.
+4. `02-ai-review.png`: explicit review before batch application.
+5. `03-publish.png`: snapshot and live-link publishing choices.
